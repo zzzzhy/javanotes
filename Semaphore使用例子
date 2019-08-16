@@ -1,0 +1,99 @@
+package let;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+/**
+ * Created by z18485 on 2019/8/16.
+ * 100个线程，先到的第一个线程更新缓存，剩下的99个读取缓存
+ *
+ * @author z18485
+ */
+public class Seamphore {
+
+    private static class HotWord {
+        private volatile String word;
+
+        private String getWord() {
+            return word;
+        }
+
+        private void setWord(String word) {
+            //模拟redis更新操作
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            this.word = word;
+        }
+    }
+
+    /**
+     * 有
+     *
+     * @throws InterruptedException InterruptedException
+     */
+    public static void useSemaphore() throws InterruptedException {
+        final HotWord hotWord = new HotWord();
+        Semaphore semaphore = new Semaphore(1);
+        Runnable runnable = () -> {
+            try {
+                semaphore.acquire();
+                if (null == hotWord.getWord()) {
+                    hotWord.setWord("杨超越");
+                    System.out.println("缓存更新----------------------------->" + hotWord.getWord());
+                } else {
+                    System.out.println("缓存命中----------------------------->" + hotWord.getWord());
+                }
+                if(semaphore.availablePermits() < 2){
+                    semaphore.release(100);
+                }
+                semaphore.release(100);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        ExecutorService pool = Executors.newFixedThreadPool(100);
+        for (int i = 0; i < 100; i++) {
+            pool.submit(runnable);
+        }
+        pool.shutdown();
+        Thread.sleep(2000);
+        System.out.println("最终可用信号量------------------>" + semaphore.availablePermits());
+    }
+
+    private static void userReadWriteLocal() throws InterruptedException {
+        final HotWord hotWord = new HotWord();
+        ReentrantReadWriteLock rd = new ReentrantReadWriteLock();
+        Lock r = rd.readLock();
+        Lock w = rd.writeLock();
+        Runnable runnable = () -> {
+            if (null == hotWord.getWord()) {
+                w.lock();
+                hotWord.setWord("杨超越");
+                System.out.println("缓存更新----------------------------->" + hotWord.getWord());
+                w.unlock();
+            } else {
+                r.lock();
+                System.out.println("缓存命中----------------------------->" + hotWord.getWord());
+                r.unlock();
+            }
+        };
+        ExecutorService pool = Executors.newFixedThreadPool(100);
+        for (int i = 0; i < 100; i++) {
+            pool.submit(runnable);
+        }
+        pool.shutdown();
+        Thread.sleep(2000);
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        useSemaphore();
+
+    }
+}
