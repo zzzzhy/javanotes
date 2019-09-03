@@ -1,0 +1,19 @@
+http://10.125.38.91:5000/v3/auth/tokens 
+{
+    "auth": {
+        "identity": {
+            "methods": [
+                "password"
+            ],
+            "password": {
+                "user": {
+                    "name": "admin",
+                    "domain": {
+                        "name": "Default"
+                    },
+                    "password": "cloudos"
+                }
+            }
+        }
+    }
+}
