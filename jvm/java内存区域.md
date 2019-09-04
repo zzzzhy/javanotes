@@ -50,6 +50,6 @@
     - 目前主流的访问方式有使用句柄和直接指针两种。
         - 使用句柄: java堆中会直接分出一块内存来作为句柄池，reference中存储的就是对象的句柄地址，而
         句柄中包含了对象实例数据与类型数据各自的具体地址信息。
-        ![使用句柄](image/使用句柄.png)
+        ![使用句柄](https://github.com/zzzzhy/javanotes/blob/master/image/%E4%BD%BF%E7%94%A8%E5%8F%A5%E6%9F%84.png)
         - 使用直接指针: reference中存储的直接是对象地址，对象地址信息中包含到对象类型数据的指针。
-        ![直接指针](image/直接指针访问.png)
+        ![直接指针](https://github.com/zzzzhy/javanotes/blob/master/image/%E7%9B%B4%E6%8E%A5%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE.png)
